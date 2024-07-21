@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <Title>FamilySync.Core.Persistence</Title>
+        <Authors>Nichlas Hoberg</Authors>
+        <Description>Responsible for everything related to persistence and base models</Description>
+        <PackageProjectUrl>https://github.com/FamilySync/dotnet-service-core</PackageProjectUrl>
+        <RepositoryType>git</RepositoryType>
+        <RootNamespace>FamilySync.Core.Persistence</RootNamespace>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Version>1.0.0</Version>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.7"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.7"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.7"/>
+        <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2"/>
+        <PackageReference Include="Pomelo.EntityFrameworkCore.MySql.Json.Microsoft" Version="8.0.2"/>
+    </ItemGroup>
+</Project>
