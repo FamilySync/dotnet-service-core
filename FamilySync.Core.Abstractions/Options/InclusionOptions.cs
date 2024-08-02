@@ -2,11 +2,12 @@
 
 public class InclusionOptions
 {
-    public static string Section = "Config:Inclusion";
+    public static string Section => "Config:Inclusion";
     
     public bool MVC { get; set; } = true;
     public bool Authorization { get; set; } = true;
     public bool Swagger { get; set; } = true;
     public bool Versioning { get; set; } = true;
     public bool Mapper { get; set; } = true;
+    public bool Cors { get; set; } = true;
 }

@@ -1,6 +1,6 @@
-﻿using FamilySync.Core.Abstractions.Filters;
-using FamilySync.Core.Abstractions.Options;
+﻿using FamilySync.Core.Abstractions.Options;
 using FamilySync.Core.Authentication.Extensions;
+using FamilySync.Core.Filters;
 using FamilySync.Core.Options;
 using FastExpressionCompiler;
 using Mapster;
@@ -21,6 +21,7 @@ public static class IServiceCollectionExtensions
         services.Configure<ServiceOptions>(configuration.GetRequiredSection(ServiceOptions.Section));
         services.Configure<InclusionOptions>(configuration.GetSection(InclusionOptions.Section));
         services.Configure<AuthenticationOptions>(configuration.GetSection(AuthenticationOptions.Section));
+        services.Configure<CorsOptions>(configuration.GetSection(CorsOptions.Section));
 
         var config = configuration.GetRequiredSection(ConfigOptions.Section).Get<ConfigOptions>()!;
 
@@ -41,10 +42,20 @@ public static class IServiceCollectionExtensions
         }
 
         if (config.Inclusion.Authorization)
-        {
             services.AddAuth(config.Authentication);
+
+        if (config.Inclusion.Cors)
+        {
+            services.AddCors(options =>
+            {
+                options.AddPolicy(config.Cors.Name, builder => builder
+                    .WithOrigins(config.Cors.Origins)
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials());
+            });
         }
-        
+
         if (config.Inclusion.MVC)
         {
             var mvcBuilder = services.AddControllers(options =>
@@ -70,20 +81,20 @@ public static class IServiceCollectionExtensions
                 options.UseAllOfToExtendReferenceSchemas();
                 options.CustomOperationIds(x => $"{x.ActionDescriptor.RouteValues["action"]}");
 
-                var definitionID = "httpBearer"; 
+                var schemeName = "httpBearer"; 
                 var securityScheme = new OpenApiSecurityScheme
                 {
-                    Description = "Jwt Authorization Header using the Bearer scheme.",
+                    Description = "Jwt Authorization using Bearer.",
                     Type = SecuritySchemeType.Http,
                     Scheme = "Bearer",
                     Reference = new()
                     {
-                        Id = definitionID,
+                        Id = schemeName,
                         Type = ReferenceType.SecurityScheme
                     }
                 };
 
-                options.AddSecurityDefinition(definitionID, securityScheme);
+                options.AddSecurityDefinition(schemeName, securityScheme);
                 options.AddSecurityRequirement(new()
                 {
                     { securityScheme, new List<string>() }
@@ -92,7 +103,7 @@ public static class IServiceCollectionExtensions
 
             services.AddEndpointsApiExplorer();
         }
-        
+
         if (config.Inclusion.Mapper)
         {
             TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();

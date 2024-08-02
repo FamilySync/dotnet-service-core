@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Serilog;
+using Serilog.Sinks.OpenTelemetry;
 
 namespace FamilySync.Core;
 
@@ -10,26 +11,40 @@ public static class ServiceHost<TEntryPoint> where TEntryPoint : EntryPoint, new
     {
         var config = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json")
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .AddEnvironmentVariables()
             .Build();
 
         var loggerConfig = new LoggerConfiguration()
             .ReadFrom.Configuration(config)
-            .Enrich.FromLogContext()
-            .Enrich.WithProperty("Service", config["Config:Service:Name"]);
-
-        var isDevelopment = bool.Parse(config["Config:Service:IsDevelopment"]!);
-
-        if (isDevelopment)
+            .Enrich.FromLogContext();
+        
+        var telemetryEnabled = bool.Parse(config["Config:TelemetryLogging:Enabled"]!);
+        if (telemetryEnabled)
         {
             Log.Logger = loggerConfig
                 .WriteTo.Console()
+                .WriteTo.OpenTelemetry(x =>
+                {
+                    x.Endpoint = "http://localhost:5341/ingest/otlp/v1/logs";
+                    x.Protocol = OtlpProtocol.HttpProtobuf;
+                    x.Headers = new Dictionary<string, string> 
+                    {
+                        ["X-Seq-ApiKey"] = "5zlOgtgspIxPldE3uxdg"
+                    };
+                    x.ResourceAttributes = new Dictionary<string, object>
+                    {
+                        ["service.name"] = config["Config:Service:Name"]!
+                    };
+
+                })
                 .CreateLogger();
         }
         else
         {
-            // TODO: Research and implement a log management and analytics platform such as Graylog
+            Log.Logger = loggerConfig
+                .WriteTo.Console()
+                .CreateLogger();
         }
         
         try
@@ -50,12 +65,11 @@ public static class ServiceHost<TEntryPoint> where TEntryPoint : EntryPoint, new
             entryPoint.ConfigureApp(app);
             
             // Handle arguments making it possible to execute custom logic
-
             switch (args.Any() ? args[0] : string.Empty)
             {
                 case "migrate":
                 {
-                    // TODO: Implement cloud based database migration
+                    // TODO: Implement handling of cloud based database migration
                     break;
                 }
 
@@ -68,7 +82,7 @@ public static class ServiceHost<TEntryPoint> where TEntryPoint : EntryPoint, new
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"A fatal error occured while executing host! {ex}");
+            Log.Fatal(ex, "Fatal error at application startup!");
         }
 
         return 0;

@@ -12,6 +12,7 @@ public static class IApplicationBuilderExtensions
     public static IApplicationBuilder Configure(this IApplicationBuilder builder)
     {
         var inclusion = builder.ApplicationServices.GetRequiredService<IOptions<InclusionOptions>>().Value;
+        var cors = builder.ApplicationServices.GetRequiredService<IOptions<CorsOptions>>().Value;
         
         if (inclusion.MVC)
         {
@@ -21,6 +22,9 @@ public static class IApplicationBuilderExtensions
             
             if (inclusion.Authorization)
             {
+                if (inclusion.Cors)
+                    builder.UseCors(cors.Name);
+                
                 builder.UseAuthorization();
             }
 
@@ -48,7 +52,7 @@ public static class IApplicationBuilderExtensions
         {
             config.RouteTemplate = "api/swagger/{documentName}/swagger.json";
 
-            if (!options.IsDevelopment)
+            if (!options.Debug)
             {
                 config.PreSerializeFilters.Add((swagger, _) =>
                 {
@@ -70,7 +74,7 @@ public static class IApplicationBuilderExtensions
             {
                 var title = $"FamilySync - {options.Name} {description.GroupName}";
 
-                if (options.IsDevelopment)
+                if (options.Debug)
                 {
                     config.SwaggerEndpoint($"/api/swagger/{description.GroupName}/swagger.json", title);
                 }

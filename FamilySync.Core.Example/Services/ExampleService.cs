@@ -18,10 +18,12 @@ public interface IExampleService
 public class ExampleService : IExampleService
 {
     private readonly ExampleContext _context;
-
-    public ExampleService(ExampleContext context)
+    private readonly ILogger<ExampleService> _logger;
+    
+    public ExampleService(ExampleContext context, ILogger<ExampleService> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     public async Task<ExampleDTO> Create(CreateExampleRequest request, CancellationToken cancellationToken)
@@ -31,6 +33,7 @@ public class ExampleService : IExampleService
         _context.Examples.Add(entity);
         await _context.SaveChangesAsync(cancellationToken);
 
+        _logger.LogInformation("Successfully created entity with id: {id}", entity.ID);
         return entity.Adapt<ExampleDTO>();
     }
 
@@ -40,6 +43,7 @@ public class ExampleService : IExampleService
 
         if (entity is null)
         {
+            _logger.LogError("Failed to find entity with id: {id}", id);
             throw new NotFoundException($"Could not find entity of type {typeof(Models.Entity.Example)} with id {id}");
         }
 
@@ -52,6 +56,7 @@ public class ExampleService : IExampleService
 
         if (entity is null)
         {
+            _logger.LogWarning("Tried to delete entity that doesn't exist with id: {id}", id);
             return;
         }
 
@@ -65,6 +70,7 @@ public class ExampleService : IExampleService
 
         if (entity is null)
         {
+            _logger.LogError("Failed to find entity with id: {id}", id);
             throw new NotFoundException($"Could not find entity of type {typeof(Models.Entity.Example)} with id {id}");
         }
 

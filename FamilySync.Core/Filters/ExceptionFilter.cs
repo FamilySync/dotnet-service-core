@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Options;
 
-namespace FamilySync.Core.Abstractions.Filters;
+namespace FamilySync.Core.Filters;
 
 public class ExceptionFilter : IExceptionFilter
 {
@@ -95,7 +95,7 @@ public class ExceptionFilter : IExceptionFilter
     private IActionResult? GetContextResult(ExceptionContext ctx)
     {
         // In development, we want as much information as possible.
-        if (_options.IsDevelopment)
+        if (_options.Debug)
         {
             return new JsonResult(new
             {

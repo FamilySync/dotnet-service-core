@@ -10,7 +10,7 @@
         <RepositoryType>git</RepositoryType>
         <RootNamespace>FamilySync.Core.Authentication</RootNamespace>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Version>1.0.0</Version>
+        <Version>0.0.1</Version>
     </PropertyGroup>
     
     <ItemGroup>

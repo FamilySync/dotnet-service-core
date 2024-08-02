@@ -2,7 +2,7 @@
 
 public class AuthenticationOptions
 {
-    public static string Section = "Config:Authentication";
+    public static string Section => "Config:Authentication";
     
     public string Secret { get; set; } = default!;
     public string Issuer { get; set; } = default!;
