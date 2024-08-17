@@ -8,8 +8,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\FamilySync.Core.Abstractions\FamilySync.Core.Abstractions.csproj" />
-      <ProjectReference Include="..\FamilySync.Core.Persistence\FamilySync.Core.Persistence.csproj" />
       <ProjectReference Include="..\FamilySync.Core\FamilySync.Core.csproj" />
     </ItemGroup>
 

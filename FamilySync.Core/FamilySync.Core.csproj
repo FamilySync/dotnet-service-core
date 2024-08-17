@@ -23,11 +23,12 @@
         <PackageReference Include="Serilog.Sinks.OpenTelemetry" Version="3.0.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
         <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.5.0" />
-        <PackageReference Include="System.Text.Json" Version="8.0.3" />
+        <PackageReference Include="System.Text.Json" Version="8.0.4" />
     </ItemGroup>
     
     <ItemGroup>
       <ProjectReference Include="..\FamilySync.Core.Abstractions\FamilySync.Core.Abstractions.csproj" />
       <ProjectReference Include="..\FamilySync.Core.Authentication\FamilySync.Core.Authentication.csproj" />
+      <ProjectReference Include="..\FamilySync.Core.Persistence\FamilySync.Core.Persistence.csproj" />
     </ItemGroup>
 </Project>
