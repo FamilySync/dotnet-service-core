@@ -11,8 +11,8 @@ on:
 concurrency:
     group: ci-${{ github.ref }}
     cancel-in-progress: true
-    
+
 jobs:
     build:
-        uses: FamilySync/pipelines/.github/workflows/dotnet/nuget-publish.yaml@main
+        uses: FamilySync/pipelines/.github/workflows/dotnet-nuget-publish.yaml@main
         secrets: inherit
