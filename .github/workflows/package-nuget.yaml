@@ -1,6 +1,4 @@
 name: Pack & Publish NuGet
-description: Call workflow in pipelines to package and publish NuGet package to Github
-author: Nichals Hoberg
 
 on:
     push:
