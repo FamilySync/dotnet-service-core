@@ -20,8 +20,7 @@ public static class IServiceCollectionExtensions
     {
         services.Configure<ServiceOptions>(configuration.GetRequiredSection(ServiceOptions.Section));
         services.Configure<InclusionOptions>(configuration.GetSection(InclusionOptions.Section));
-        services.Configure<AuthenticationOptions>(configuration.GetSection(AuthenticationOptions.Section));
-        services.Configure<CorsOptions>(configuration.GetSection(CorsOptions.Section));
+        services.Configure<AuthOptions>(configuration.GetSection(AuthOptions.Section));
 
         var config = configuration.GetRequiredSection(ConfigOptions.Section).Get<ConfigOptions>()!;
 
@@ -41,19 +40,9 @@ public static class IServiceCollectionExtensions
             });
         }
 
-        if (config.Inclusion.Authorization)
-            services.AddAuth(config.Authentication);
-
-        if (config.Inclusion.Cors)
+        if (config.Inclusion.Auth)
         {
-            services.AddCors(options =>
-            {
-                options.AddPolicy(config.Cors.Name, builder => builder
-                    .WithOrigins(config.Cors.Origins)
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .AllowCredentials());
-            });
+            services.AddServiceAuth(config.Auth);
         }
 
         if (config.Inclusion.MVC)

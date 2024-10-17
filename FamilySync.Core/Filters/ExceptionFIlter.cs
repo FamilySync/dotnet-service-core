@@ -33,7 +33,7 @@ public class ExceptionFilter : IExceptionFilter
             }
 
             case AggregateException ae when ae.InnerExceptions.Any(x => x is TaskCanceledException or OperationCanceledException):
-            case TaskCanceledException:     
+            case TaskCanceledException:
             case OperationCanceledException:
             {
                 ctx.HttpContext.Response.ContentType = "application/json";
@@ -49,7 +49,7 @@ public class ExceptionFilter : IExceptionFilter
                 ctx.Result = GetContextResult(ctx);
                 break;
             }
-            
+
             case BadRequestException:
             {
                 ctx.HttpContext.Response.ContentType = "applicaiton/json";
@@ -57,7 +57,7 @@ public class ExceptionFilter : IExceptionFilter
                 ctx.Result = GetContextResult(ctx);
                 break;
             }
-            
+
             case ForbiddenException:
             {
                 ctx.HttpContext.Response.ContentType = "applicaiton/json";
@@ -65,7 +65,7 @@ public class ExceptionFilter : IExceptionFilter
                 ctx.Result = GetContextResult(ctx);
                 break;
             }
-              
+
             case TooManyRequestsException:
             {
                 ctx.HttpContext.Response.ContentType = "applicaiton/json";
@@ -73,7 +73,7 @@ public class ExceptionFilter : IExceptionFilter
                 ctx.Result = GetContextResult(ctx);
                 break;
             }
-              
+
             case UnauthorizedException:
             {
                 ctx.HttpContext.Response.ContentType = "applicaiton/json";
@@ -99,16 +99,16 @@ public class ExceptionFilter : IExceptionFilter
         {
             return new JsonResult(new
             {
-                Code = ctx.Exception.InnerException is not null
+                Message = ctx.Exception.InnerException is not null
                     ? ctx.Exception.InnerException.Message
                     : ctx.Exception.Message,
                 
                 Stacktrace = ctx.Exception.StackTrace
             });
         }
-
+        
         // If not in development we need to limit information for security concerns.
-        if (ctx.Exception.GetType().IsAssignableFrom(typeof(FamilySyncException)))
+        if (ctx.Exception.GetType().IsAssignableTo(typeof(ServiceException)))
         {
             return new JsonResult(new
             {

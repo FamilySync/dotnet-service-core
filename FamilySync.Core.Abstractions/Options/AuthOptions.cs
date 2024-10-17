@@ -1,8 +1,8 @@
 ﻿namespace FamilySync.Core.Abstractions.Options;
 
-public class AuthenticationOptions
+public class AuthOptions
 {
-    public static string Section => "Config:Authentication";
+    public static string Section => "Config:Auth";
     
     public string Secret { get; set; } = default!;
     public string Issuer { get; set; } = default!;

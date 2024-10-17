@@ -3,14 +3,7 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <Title>FamilySync.Core.Persistence</Title>
-        <Authors>Nichlas Hoberg</Authors>
-        <Description>Responsible for everything related to persistence and base models</Description>
-        <PackageProjectUrl>https://github.com/FamilySync/dotnet-service-core</PackageProjectUrl>
-        <RepositoryType>git</RepositoryType>
-        <RootNamespace>FamilySync.Core.Persistence</RootNamespace>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Version>0.0.1</Version>
+        <IsPackable>true</IsPackable>
     </PropertyGroup>
 
     <ItemGroup>

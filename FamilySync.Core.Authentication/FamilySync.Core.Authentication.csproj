@@ -3,14 +3,7 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <Title>FamilySync.Core.Authentication</Title>
-        <Authors>Nichlas Hoberg</Authors>
-        <Description>Responsible for base Authentication and Authorization logic</Description>
-        <PackageProjectUrl>https://github.com/FamilySync/dotnet-service-core</PackageProjectUrl>
-        <RepositoryType>git</RepositoryType>
-        <RootNamespace>FamilySync.Core.Authentication</RootNamespace>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Version>0.0.1</Version>
+        <IsPackable>true</IsPackable>
     </PropertyGroup>
     
     <ItemGroup>

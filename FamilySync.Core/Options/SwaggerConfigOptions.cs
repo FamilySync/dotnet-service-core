@@ -35,7 +35,7 @@ public class SwaggerConfigOptions : IConfigureOptions<SwaggerGenOptions>
 
         var info = new OpenApiInfo
         {
-            Title = $"FamilySync - {_options.Name}",
+            Title = $"FamilySync.{_options.Type} - {_options.Name}",
             Version = version,
             Description = _options.Description
         };

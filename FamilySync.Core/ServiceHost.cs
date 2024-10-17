@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using FamilySync.Core.Persistence.Filters;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Sinks.OpenTelemetry;
 
@@ -20,17 +23,19 @@ public static class ServiceHost<TEntryPoint> where TEntryPoint : EntryPoint, new
             .Enrich.FromLogContext();
         
         var telemetryEnabled = bool.Parse(config["Config:TelemetryLogging:Enabled"]!);
+        var telemetryHost = config["Config:TelemetryLogging:Host"]!;
+        var telemetryApiKey = config["Config:TelemetryLogging:ApiKey"]!;
         if (telemetryEnabled)
         {
             Log.Logger = loggerConfig
                 .WriteTo.Console()
                 .WriteTo.OpenTelemetry(x =>
                 {
-                    x.Endpoint = "http://localhost:5341/ingest/otlp/v1/logs";
+                    x.Endpoint = $"{telemetryHost}/ingest/otlp/v1/logs";
                     x.Protocol = OtlpProtocol.HttpProtobuf;
                     x.Headers = new Dictionary<string, string> 
                     {
-                        ["X-Seq-ApiKey"] = "5zlOgtgspIxPldE3uxdg"
+                        ["X-Seq-ApiKey"] = $"{telemetryApiKey}"
                     };
                     x.ResourceAttributes = new Dictionary<string, object>
                     {
@@ -55,30 +60,23 @@ public static class ServiceHost<TEntryPoint> where TEntryPoint : EntryPoint, new
             
             var entryPoint = new TEntryPoint
             {
-                Configuration = builder.Configuration
+                Configuration = builder.Configuration,
             };
             
-            entryPoint.ConfigureServices(builder.Services);
+            entryPoint.ConfigureServiceContainer(builder.Services);
 
             var app = builder.Build();
             
-            entryPoint.ConfigureApp(app);
-            
-            // Handle arguments making it possible to execute custom logic
-            switch (args.Any() ? args[0] : string.Empty)
-            {
-                case "migrate":
-                {
-                    // TODO: Implement handling of cloud based database migration
-                    break;
-                }
+            entryPoint.ConfigureAppPipeline(app);
 
-                default:
-                {
-                    app.Run();
-                    break;
-                }
+            var migratorEnabled = bool.Parse(config["Config:Inclusion:Migrator"]!);
+
+            if (migratorEnabled)
+            {
+                ApplyMigrations(app).Wait();
             }
+            
+            app.Run();
         }
         catch (Exception ex)
         {
@@ -87,7 +85,26 @@ public static class ServiceHost<TEntryPoint> where TEntryPoint : EntryPoint, new
 
         return 0;
     }
+
+    private static async Task ApplyMigrations(IHost host)
+    {
+        var provider = host.Services.GetRequiredService<IServiceProvider>();
+
+        using var scope = provider.CreateScope();
+
+        var migrations = scope.ServiceProvider.GetService<IEnumerable<IMigrationFilter>>();
+
+        if (migrations?.Any() ?? false)
+        {
+            foreach (var migration in migrations)
+            {
+                await migration.ApplyPending();
+            }
+        }
+    }
+
 }
+
 
 public static class ServiceHost
 {

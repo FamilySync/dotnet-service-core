@@ -1,6 +1,6 @@
 ﻿namespace FamilySync.Core.Abstractions.Exceptions;
 
-public class UnauthorizedException : FamilySyncException
+public class UnauthorizedException : ServiceException
 {
     public UnauthorizedException()
     {

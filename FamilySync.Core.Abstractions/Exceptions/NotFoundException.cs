@@ -1,6 +1,6 @@
 ﻿namespace FamilySync.Core.Abstractions.Exceptions;
 
-public class NotFoundException : FamilySyncException
+public class NotFoundException : ServiceException
 {
     public NotFoundException()
     {

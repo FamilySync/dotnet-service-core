@@ -1,6 +1,6 @@
 ﻿namespace FamilySync.Core.Abstractions.Exceptions;
 
-public class BadRequestException : FamilySyncException
+public class BadRequestException : ServiceException
 {
     public BadRequestException()
     {
