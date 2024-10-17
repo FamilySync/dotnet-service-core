@@ -10,24 +10,19 @@ public static class AuthorizationOptionsExtensions
     {
         var levels = Enum.GetValues<ClaimLevel>();
 
-        foreach (var definition in CustomClaim.Definitions)
+        foreach (var serviceClaim in ServiceClaim.Claims.Where(serviceClaim => !string.IsNullOrEmpty(serviceClaim.Policy)))
         {
-            if (string.IsNullOrEmpty(definition.Policy))
-            {
-                continue;
-            }
-
             foreach (var level in levels)
             {
-                options.AddPolicy($"{definition.Policy}:{Enum.GetName(level)}", config =>
+                options.AddPolicy($"{serviceClaim.Policy}:{Enum.GetName(level)}", config =>
                 {
                     config.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
                     config.RequireAuthenticatedUser();
-                    config.AddRequirements(new ClaimRequirement(definition.Claim, level));
+                    config.AddRequirements(new ClaimRequirement(serviceClaim.Claim, level));
                 });
             }
         }
-
+        
         options.DefaultPolicy = new AuthorizationPolicyBuilder([JwtBearerDefaults.AuthenticationScheme])
             .RequireAuthenticatedUser()
             .Build();

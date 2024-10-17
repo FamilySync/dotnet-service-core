@@ -11,13 +11,11 @@ namespace FamilySync.Core;
 
 public class EntryPoint
 {
-    // Used as security to only allow certain plugins
-    private static readonly List<string> allowedPluginAssemblyPrefix = new() { "FamilySync" };
-
-    // List to store instances of ServiceConfiguration
-    private static readonly List<ServiceConfiguration> PluginConfigurations = new();
-
-    // Configuration property for storing application configuration
+    // Security measure to only allow certain plugins
+    private static readonly List<string> _AllowedPluginAssemblyPrefix = new() { "FamilySync" };
+    
+    private static readonly List<ServiceConfiguration> _PluginConfigurations = new();
+    
     public IConfiguration? Configuration { get; init; }
 
     public EntryPoint()
@@ -27,15 +25,15 @@ public class EntryPoint
 
     private static void LoadPluginAssemblies()
     {
-        // Get the entry assembly (the main application assembly).
+        // Get the entry assembly (main application assembly).
         var entryAssembly = Assembly.GetEntryAssembly();
 
         if (entryAssembly is null)
         {
-            throw new("GetEntryAssembly returned null");
+            throw new("GetEntryAssembly returned null!");
         }
-
-        // Load all entry assemblies
+        
+        // Load all assemblies from entry
         foreach (var asm in entryAssembly.GetReferencedAssemblies())
         {
             try
@@ -47,60 +45,61 @@ public class EntryPoint
                 continue;
             }
         }
-
+        
+        // Filter plugins
         var plugins = AppDomain.CurrentDomain
             .GetAssemblies()
-            .Where(x => !x.IsDynamic)
-            .Where(x => x.FullName is string name && allowedPluginAssemblyPrefix.Any(y => name.StartsWith(y)))
-            .SelectMany(x => x.GetExportedTypes())
-            .Where(x => !x.IsAbstract && x.IsSubclassOf(typeof(ServiceConfiguration)))
-            .Distinct()
-            .Select(x => (ServiceConfiguration)Activator.CreateInstance(x)!)
-            .Where(x => x is not null)
-            .ToList();
-
-        if (PluginConfigurations.Any())
+            .Where(x => !x.IsDynamic) // Filter out dynamically generated assemblies
+            .Where(x => x.FullName is { } name && _AllowedPluginAssemblyPrefix.Any(y => name.StartsWith(y))) // Make sure assemblies name starts with allowed name prefix
+            .SelectMany(x => x.GetExportedTypes()) // Flatten all the public types from the filtered assemblies into a single collection
+            .Where(x => !x.IsAbstract && x.IsSubclassOf(typeof(ServiceConfiguration))) // Filter out abstract assembles and those that are not a subclass of ServiceConfiguration
+            .Distinct() // Remove duplicate types
+            .Select(x => (ServiceConfiguration)Activator.CreateInstance(x)!) // Create an instance of the assemblies
+            .Where(x => x is not null) // Ensure none of the instances are null (sanity check)
+            .ToList(); // Convert the final IEnumerable<ServiceConfiguration> to a List<ServiceConfiguration>
+        
+        if (_PluginConfigurations.Any())
         {
-            PluginConfigurations.Clear();
+            _PluginConfigurations.Clear();
         }
         
-        PluginConfigurations.AddRange(plugins);
+        _PluginConfigurations.AddRange(plugins);
     }
-
-    public virtual void ConfigureApp(IApplicationBuilder builder)
+    
+    public virtual void ConfigureAppPipeline(IApplicationBuilder appBuilder)
     {
-        builder.Configure();
+        appBuilder.Configure();
 
-        ApplyAppConfigurations(builder, PluginConfigurations);
+        ApplyMiddlewareConfigurations(appBuilder, _PluginConfigurations);
     }
 
-    public virtual void ConfigureServices(IServiceCollection services)
+    public virtual void ConfigureServiceContainer(IServiceCollection services)
     {
         services.Configure(Configuration!);
 
-        ApplyServiceConfigurations(services, PluginConfigurations);
-        ConfigureMapper(services, PluginConfigurations);
+        ApplyServiceRegistrations(services, _PluginConfigurations);
+        ConfigureObjectMapping(services, _PluginConfigurations);
     }
 
-    protected virtual void ApplyAppConfigurations(IApplicationBuilder builder, List<ServiceConfiguration> configurations)
+    protected virtual void ApplyMiddlewareConfigurations(IApplicationBuilder builder, List<ServiceConfiguration> pluginConfigurations)
     {
-        foreach (var config in configurations)
+        foreach (var config in pluginConfigurations)
         {
             config.Configuration = Configuration!;
-            config.Configure(builder);
+            config.InjectMiddleware(builder);
         }
     }
     
-    protected virtual void ApplyServiceConfigurations(IServiceCollection services, List<ServiceConfiguration> configurations)
+    protected virtual void ApplyServiceRegistrations(IServiceCollection services, List<ServiceConfiguration> pluginConfigurations)
     {
-        foreach (var config in configurations)
+        foreach (var config in pluginConfigurations)
         {
             config.Configuration = Configuration!;
-            config.ConfigureServices(services);
+            config.InjectServiceRegistrations(services);
         }
     }
 
-    protected virtual void ConfigureMapper(IServiceCollection services, List<ServiceConfiguration> configurations)
+    protected virtual void ConfigureObjectMapping(IServiceCollection services, List<ServiceConfiguration> configurations)
     {
         var mapperConfig = new TypeAdapterConfig();
 

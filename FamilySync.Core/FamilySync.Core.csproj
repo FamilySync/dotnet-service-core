@@ -3,14 +3,7 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <Title>FamilySync.Core</Title>
-        <Authors>Nichlas Hoberg</Authors>
-        <Description>Adds core SaaS functionality.</Description>
-        <RepositoryUrl>https://github.com/FamilySync/dotnet-service-core</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
-        <RootNamespace>FamilySync.Core</RootNamespace>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Version>0.0.1</Version>
+        <IsPackable>true</IsPackable>
     </PropertyGroup>
     
     <ItemGroup>

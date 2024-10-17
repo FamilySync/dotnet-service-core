@@ -3,14 +3,7 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <Title>FamilySync.Core.Abstractions</Title>
-        <Authors>Nichlas Hoberg</Authors>
-        <Description>Responsible for abstractions of frequent logic such as custom exceptions and service settings</Description>
-        <PackageProjectUrl>https://github.com/FamilySync/dotnet-service-core</PackageProjectUrl>
-        <RepositoryType>git</RepositoryType>
-        <RootNamespace>FamilySync.Core.Abstractions</RootNamespace>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Version>0.0.1</Version>
+        <IsPackable>true</IsPackable>
     </PropertyGroup>
 
     <ItemGroup>

@@ -1,4 +1,4 @@
-﻿namespace FamilySync.Core.Persistence.Models;
+﻿namespace FamilySync.Core.Persistence.Models.Entities;
 
 public interface IEntityBase
 {
@@ -23,5 +23,5 @@ public abstract class EntityBase : IEntityBase
 
 public abstract class EntityBase<T> : EntityBase, IEntityBase<T>
 {
-    public T ID { get; set; }
+    public required T ID { get; set; }
 }

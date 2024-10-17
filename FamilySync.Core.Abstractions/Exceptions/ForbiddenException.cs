@@ -1,6 +1,6 @@
 ﻿namespace FamilySync.Core.Abstractions.Exceptions;
 
-public class ForbiddenException : FamilySyncException
+public class ForbiddenException : ServiceException
 {
     public ForbiddenException()
     {

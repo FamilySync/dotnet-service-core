@@ -1,6 +1,6 @@
 ﻿namespace FamilySync.Core.Abstractions.Exceptions;
 
-public class TooManyRequestsException : FamilySyncException
+public class TooManyRequestsException : ServiceException
 {
     public TooManyRequestsException()
     {

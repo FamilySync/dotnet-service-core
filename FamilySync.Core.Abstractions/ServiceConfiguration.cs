@@ -9,9 +9,7 @@ public abstract class ServiceConfiguration
 {
     public IConfiguration Configuration { get; set; } = default!;
 
-    public abstract void Configure(IApplicationBuilder builder);
-
+    public abstract void InjectMiddleware(IApplicationBuilder builder);
     public virtual void ConfigureMapper(TypeAdapterConfig config) { }
-
-    public abstract void ConfigureServices(IServiceCollection services);
+    public abstract void InjectServiceRegistrations(IServiceCollection services);
 }

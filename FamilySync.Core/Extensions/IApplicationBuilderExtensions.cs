@@ -12,25 +12,22 @@ public static class IApplicationBuilderExtensions
     public static IApplicationBuilder Configure(this IApplicationBuilder builder)
     {
         var inclusion = builder.ApplicationServices.GetRequiredService<IOptions<InclusionOptions>>().Value;
-        var cors = builder.ApplicationServices.GetRequiredService<IOptions<CorsOptions>>().Value;
-        
+
         if (inclusion.MVC)
         {
             builder.UseResponseCaching();
 
             builder.UseRouting();
-            
-            if (inclusion.Authorization)
+
+            if (inclusion.Auth)
             {
-                if (inclusion.Cors)
-                    builder.UseCors(cors.Name);
                 
                 builder.UseAuthorization();
             }
 
-            builder.UseEndpoints(options =>
+            builder.UseEndpoints(opt =>
             {
-                options.MapControllers();
+                opt.MapControllers();
             });
         }
 
@@ -50,19 +47,19 @@ public static class IApplicationBuilderExtensions
 
         builder.UseSwagger(config =>
         {
-            config.RouteTemplate = "api/swagger/{documentName}/swagger.json";
+            config.RouteTemplate = $"{options.Route}/swagger/{{documentName}}/swagger.json";
 
             if (!options.Debug)
             {
                 config.PreSerializeFilters.Add((swagger, _) =>
                 {
                     var paths = new OpenApiPaths();
-
-                    foreach (var path in paths)
+            
+                    foreach (var path in swagger.Paths)
                     {
-                        paths.Add(path.Key.Replace("/api", $"/{options.Route}"), path.Value);
+                        paths.Add(path.Key.Replace("/api/", $"/{options.Route}/"), path.Value);
                     }
-
+                    
                     swagger.Paths = paths;
                 });
             }
@@ -72,7 +69,7 @@ public static class IApplicationBuilderExtensions
         {
             foreach (var description in apiProvider.ApiVersionDescriptions)
             {
-                var title = $"FamilySync - {options.Name} {description.GroupName}";
+                var title = $"FamilySync.{options.Type} - {options.Name} {description.GroupName}";
 
                 if (options.Debug)
                 {
@@ -83,7 +80,8 @@ public static class IApplicationBuilderExtensions
                     config.SwaggerEndpoint($"/{options.Route}/swagger/{description.GroupName}/swagger.json", title);
                 }
             }
-            config.RoutePrefix = "api/swagger";
+
+            config.RoutePrefix = $"{options.Route}/swagger";
         });
     }
 }

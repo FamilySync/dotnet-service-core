@@ -1,17 +1,17 @@
 ﻿namespace FamilySync.Core.Authentication.Claims;
 
-public class CustomClaim
+public class ServiceClaim
 {
-    private static List<CustomClaim>? _definitions;
+    private static List<ServiceClaim>? _claims;
 
-    public static List<CustomClaim> Definitions
+    public static List<ServiceClaim> Claims
     {
         get
         {
-            return _definitions ??= ClaimDefinition.Build();
+            return _claims ??= ClaimDefinitions.Build();
         }
     }
-
+    
     public string Claim { get; init; }
     public string Description { get; set; }
     public string Name { get; set; }

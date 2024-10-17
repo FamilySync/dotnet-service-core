@@ -10,13 +10,13 @@ namespace FamilySync.Core.Authentication.Extensions;
 
 public static class IServiceCollectionExtensions
 {
-    public static IServiceCollection AddAuth(this IServiceCollection services, AuthenticationOptions authOptions) 
+    public static IServiceCollection AddServiceAuth(this IServiceCollection services, AuthOptions auth)
     {
         services.AddAuthorization(options =>
         {
             options.AddPolicies();
         });
-        
+
         services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -33,10 +33,10 @@ public static class IServiceCollectionExtensions
                     ValidateIssuerSigningKey = true,
                     ValidateLifetime = true,
                     ValidateIssuer = true,
-                    ValidIssuer = authOptions.Issuer,
+                    ValidIssuer = auth.Issuer,
                     ValidateAudience = true,
-                    ValidAudience = authOptions.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authOptions.Secret)),
+                    ValidAudience = auth.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(auth.Secret)),
                     ClockSkew = TimeSpan.FromSeconds(10)
                 };
             });
